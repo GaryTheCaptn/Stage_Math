@@ -106,7 +106,7 @@ def affichageAnniv(n: int):
     plt.show()
 
 
-def moyenne(l: list[(int)]):
+def moyenne(l: list[(int)]) -> float:
     """
     :param l: une liste d'entiers
     :return: la moyenne arithmetique arrondie à 2 décimales de la liste l
@@ -117,7 +117,7 @@ def moyenne(l: list[(int)]):
     return round((res / len(l)), 2)
 
 
-def genMoyennes(n: int):  # nommons "set" le jeu des 366 répartitions obtenues
+def genMoyennes(n: int) -> list[float]:  # nommons "set" le jeu des 366 répartitions obtenues
     # en faisant varier le nombre d'élèves entre 1 et 366
     """
     :param n: le nombre de sets différents générés
@@ -161,7 +161,7 @@ def afficheAnniversaire2(n: int):
 # On stocke cette info dans une moyenne temporaire,
 # on répète k fois puis on fait la moyenne réelle et on le stocke dans res
 
-def genMoyennes2(n: int):
+def genMoyennes2(n: int) -> list[int]:
     """
     :param n: le nombre de sets de repartitions obtenues
     en faisant varier le nombre d'élèves entre 1 et 366
@@ -200,3 +200,33 @@ def afficheAnniversaire3(n: int):
     plt.xlabel("Nombre d'élèves")
     plt.ylabel("Maximum d'élèves nés le même jour")
     plt.show()
+
+
+def max(l: list[int]):
+    """
+    :param l: une liste d'entiers
+    :return: le plus grand élément de l
+    """
+    res: int = l[0]
+    for i in range(len(l)):
+        if l[i] > res:
+            res = l[i]
+    return res
+
+
+def nb_oc(e: int, l: list[int]):
+    """
+    :param e: un entier
+    :param l: une liste d'entiers
+    :return: le nombre d'occurences de e dans l
+    """
+    res: int = 0
+    for i in range(len(l)):
+        if l[i] == e:
+            res += 1
+    return res
+
+
+affichageAnniv(50)
+afficheAnniversaire2(1000)
+afficheAnniversaire3(1000)
