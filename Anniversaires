@@ -1,0 +1,193 @@
+from random import randint
+
+import numpy
+import numpy as np
+from matplotlib import pyplot as plt
+
+
+def quicksort(l: list[int]):
+    """
+    :param l: une liste d'entiers non triée
+    :return: la liste l triée selon l'algorithme quicksort
+    """
+    if (len(l) == 0):
+        return []
+    else:
+        ind = int(len(l) / 2)
+        pivot = l[ind]
+        left = []
+        right = []
+        l.pop(ind)
+        for x in l:
+            if (x <= pivot):
+                left = left + [x]
+            else:
+                right = right + [x]
+        return quicksort(left) + [pivot] + quicksort(right)
+
+
+def counter(l: list[int]):
+    """
+    :param l: une liste d'entiers
+    :return: le tuple compose de la liste l triee et du nombre
+    total d'occurrences de chaque element
+    """
+    res = []
+    count = 0
+    while (len(l) > 0):
+        temp = retire(l, l[0])
+        res = res + temp
+
+    for i in range(len(res)):
+        if (res[i][1] > 1):
+            count = count + res[i][1]
+    return quicksort(res), count
+
+
+def retire(l: list[int], e: int):
+    """
+    Enleve toutes les occurrences de e dans la liste l
+    :param l: une liste d'entiers
+    :param e: un entier
+    :return: le tuple composé de la liste l privee de toutes les
+    occurrences de e et le nombre occurrences de e.
+    """
+    count = 0
+    res = []
+    for x in l:
+        if x == e:
+            count += 1
+    for i in range(count):
+        l.remove(e)
+    res = res + [(e, count)]
+    return res
+
+
+def anniversaire(n: int):
+    """
+    :param n: Le nombre d'eleves dans la classe
+    :return: la liste des (jour, nombre d'anniversaires en ce jour).
+    """
+    personnes = []
+    for j in range(n):
+        personnes.append(randint(1, 365))
+    return counter(personnes)
+
+
+"""def prettyPrint(n: int):
+    res: (list[int], int) = anniversaire(n)
+    print(f"Il y a {res[1]} personnes nées le même jour, voici la liste au format (jour, nbOccurences) : {res[0]}")"""
+
+
+def maxanniv(l: list[(int, int)]):
+    """
+    :param l: une répartition d'anniversaires en (jour, nombre d'anniversaires en ce jour)
+    :return: le plus grand nombre d'anniversaires de la liste
+    """
+    max = l[0][1]
+    for i in range(len(l)):
+        if (l[i][1] > max):
+            max = l[i][1]
+    return max
+
+
+def affichageAnniv(n: int):
+    """ Affiche un graphique représentatif de la repartition des dates de
+    naissances des n eleves sur les 365 jours de l'annee.
+    :param n: le nombre d'élèves dans une classe
+    """
+    donnees: list[(int, int)] = anniversaire(n)[0]  # la liste des (jours, nbAnniv)
+    max: int = maxanniv(donnees)  # Le plus grand nombre d'anniversaires en un jour
+    # make data:
+    x: list[(int, int)] = []
+    y: list[(int, int)] = []
+    for k in range(len(donnees)):  # On récupère les premières et secondes composantes
+        x = x + [donnees[k][0]]  # des (jours,nbAnniv)
+        y = y + [donnees[k][1]]
+    # plot
+    fig, ax = plt.subplots()
+    ax.bar(x, y, width=1, edgecolor="white", linewidth=0.7)
+    ax.set(yticks=np.arange(0, max + 1))
+    plt.xlabel("Nombre d'élèves nés le même jour")
+    plt.ylabel("Jours de l'année")
+    plt.title("Graphe représentatif d'une répartition de 50 élèves sur 365 jours.")
+    plt.show()
+
+
+def moyenne(l: list[(int)]):
+    """
+    :param l: une liste d'entiers
+    :return: la moyenne arithmetique de la liste l
+    """
+    res = 0
+    for x in l:
+        res = res + x
+    return round((res / len(l)), 2)
+
+
+def genMoyennes(n: int):  # nommons "set" le jeu des 366 répartitions obtenues
+    # en faisant varier le nombre d'élèves entre 1 et 366
+    """
+    :param n: le nombre de sets différents générés
+    :return: la liste de la moyenne
+    """
+    res = []
+    for i in range(1, 367):  # Boucle des 366 répartitions
+        maxPers = []
+        for j in range(n):  # Génération des sets
+            maxPers.append(anniversaire(i)[1])
+        res.append(moyenne(maxPers))  # Moyenne du nombre maximum de personnes nées un jour
+    return res
+
+
+def afficheAnniversaire2(n: int):
+    """
+    Affiche le nombre d'eleves nes le meme jour pour n sets de 366 repartitions
+    :param n: le nombre d'élèves
+    """
+    y = genMoyennes(n)
+    x = numpy.arange(366)
+    fig, ax = plt.subplots()
+    ax.bar(x, y, width=1, edgecolor="white", linewidth=0.7)
+    plt.title(f"Affichage du nombre d'élèves nés le même jour en fonction du nombre d'élèves pour {n} sets.")
+    plt.xlabel("Nombre d'élèves")
+    plt.ylabel("Nombre total d'élèves nés le même jour")
+    plt.show()
+
+
+# afficheAnniversaire2(100)
+# nniv(365)
+# Le jour qui a le plus d'élèves ?
+# On va générer une répartition de n élèves avec n dans {1,...,365}
+# On identifie le plus grand nombre d'élèves nés le même jour ( avec max )
+# On stocke cette info dans une moyenne temporaire,
+# on répète k fois puis on fait la moyenne réelle et on le stocke dans res
+
+def genMoyennes2(n: int):
+    """
+    :param n: le nombre de sets de repartitions obtenues
+    en faisant varier le nombre d'élèves entre 1 et 366
+    :return: la liste des moyennes du maximum d'élèves nés le même jour
+    """
+    res = []
+    for i in range(1, 367):
+        maxPers = []
+        for j in range(n):
+            maxPers.append(maxanniv((anniversaire(i)[0])))
+        res.append(moyenne(maxPers))
+    return res
+
+
+def afficheAnniversaire3(n: int):
+    """
+    Affiche le nombre maximum d'élèves nés le même jour en fonction du nombre d'élèves.
+    :param n: le nombre de sets de repartitions obtenues
+    """
+    y = genMoyennes2(n)
+    x = numpy.arange(366)
+    fig, ax = plt.subplots()
+    ax.bar(x, y, width=1, edgecolor="white", linewidth=0.7)
+    plt.title(f"Affichage du maximum d'élèves nés le même jour en fonction du nombre d'élèves pour {n} sets.")
+    plt.xlabel("Nombre d'élèves")
+    plt.ylabel("Maximum d'élèves nés le même jour")
+    plt.show()
