@@ -1,11 +1,12 @@
 from random import randint
-
+from scipy.integrate import quad
+import scipy.stats
 import numpy
 import numpy as np
 from matplotlib import pyplot as plt
 
 
-def quicksort(l: list[int]):
+def quicksort(l: list[int]) -> list[int]:
     """
     :param l: une liste d'entiers non triée
     :return: la liste l triée selon l'algorithme quicksort
@@ -26,17 +27,17 @@ def quicksort(l: list[int]):
         return quicksort(left) + [pivot] + quicksort(right)
 
 
-def counter(l: list[int]):
+def counter(l: list[int]) -> (list[int], int):
     """
     :param l: une liste d'entiers
     :return: le tuple compose de la liste l triee et du nombre
-    total d'occurrences de chaque element
+    total d'éléments qui apparaissent plus de deux fois.
     """
-    res = []
-    count = 0
+    res : list[int,int] = []
+    count : int = 0
     while (len(l) > 0):
         temp = retire(l, l[0])
-        res = res + temp
+        res = res + [temp]
 
     for i in range(len(res)):
         if (res[i][1] > 1):
@@ -44,26 +45,23 @@ def counter(l: list[int]):
     return quicksort(res), count
 
 
-def retire(l: list[int], e: int):
+def retire(l: list[int], e: int) -> (int, int):
     """
     Enleve toutes les occurrences de e dans la liste l
     :param l: une liste d'entiers
     :param e: un entier
-    :return: le tuple composé de la liste l privee de toutes les
-    occurrences de e et le nombre occurrences de e.
+    :return: le tuple (elt, nbOccurrences)
     """
     count = 0
-    res = []
     for x in l:
         if x == e:
             count += 1
     for i in range(count):
         l.remove(e)
-    res = res + [(e, count)]
-    return res
+    return (e,count)
 
 
-def anniversaire(n: int):
+def anniversaire(n: int) -> (list[int], int):
     """
     :param n: Le nombre d'eleves dans la classe
     :return: la liste des (jour, nombre d'anniversaires en ce jour).
@@ -73,16 +71,10 @@ def anniversaire(n: int):
         personnes.append(randint(1, 365))
     return counter(personnes)
 
-
-"""def prettyPrint(n: int):
-    res: (list[int], int) = anniversaire(n)
-    print(f"Il y a {res[1]} personnes nées le même jour, voici la liste au format (jour, nbOccurences) : {res[0]}")"""
-
-
-def maxanniv(l: list[(int, int)]):
+def maxanniv(l: list[(int, int)])-> int:
     """
     :param l: une répartition d'anniversaires en (jour, nombre d'anniversaires en ce jour)
-    :return: le plus grand nombre d'anniversaires de la liste
+    :return: le plus grand nombre d'anniversaires le même jour de la liste
     """
     max = l[0][1]
     for i in range(len(l)):
@@ -99,8 +91,8 @@ def affichageAnniv(n: int):
     donnees: list[(int, int)] = anniversaire(n)[0]  # la liste des (jours, nbAnniv)
     max: int = maxanniv(donnees)  # Le plus grand nombre d'anniversaires en un jour
     # make data:
-    x: list[(int, int)] = []
     y: list[(int, int)] = []
+    x: list[(int, int)] = []
     for k in range(len(donnees)):  # On récupère les premières et secondes composantes
         x = x + [donnees[k][0]]  # des (jours,nbAnniv)
         y = y + [donnees[k][1]]
@@ -110,14 +102,14 @@ def affichageAnniv(n: int):
     ax.set(yticks=np.arange(0, max + 1))
     plt.xlabel("Nombre d'élèves nés le même jour")
     plt.ylabel("Jours de l'année")
-    plt.title("Graphe représentatif d'une répartition de 50 élèves sur 365 jours.")
+    plt.title(f"Graphe représentatif d'une répartition de {n} élèves sur 365 jours.")
     plt.show()
 
 
 def moyenne(l: list[(int)]):
     """
     :param l: une liste d'entiers
-    :return: la moyenne arithmetique de la liste l
+    :return: la moyenne arithmetique arrondie à 2 décimales de la liste l
     """
     res = 0
     for x in l:
@@ -129,16 +121,24 @@ def genMoyennes(n: int):  # nommons "set" le jeu des 366 répartitions obtenues
     # en faisant varier le nombre d'élèves entre 1 et 366
     """
     :param n: le nombre de sets différents générés
-    :return: la liste de la moyenne
+    :return: la liste de la moyenne du nombre maximum de personnes nées un jour
     """
-    res = []
-    for i in range(1, 367):  # Boucle des 366 répartitions
-        maxPers = []
-        for j in range(n):  # Génération des sets
-            maxPers.append(anniversaire(i)[1])
-        res.append(moyenne(maxPers))  # Moyenne du nombre maximum de personnes nées un jour
+    n_set=[] #Tableau 2D des sets
+    res=[]
+    #Génération du n_set
+    for j in range(n):
+        #Génération d'un set
+        set = []
+        for i in range(1, 367):
+            set.append(anniversaire(i)[1]) #On ajoute le nombre total d'élèves nés le même jour
+        n_set.append(set)
+    #Moyenne des n_sets par colonnes
+    for i in range(366):
+        temp = 0
+        for j in range(n):
+            temp += n_set[j][i] #Somme de la colonne pour j entre 1 et n
+        res.append(round(temp/n,2)) #Ajoute la moyenne de chaque colonne à res
     return res
-
 
 def afficheAnniversaire2(n: int):
     """
@@ -155,8 +155,6 @@ def afficheAnniversaire2(n: int):
     plt.show()
 
 
-# afficheAnniversaire2(100)
-# nniv(365)
 # Le jour qui a le plus d'élèves ?
 # On va générer une répartition de n élèves avec n dans {1,...,365}
 # On identifie le plus grand nombre d'élèves nés le même jour ( avec max )
@@ -169,12 +167,23 @@ def genMoyennes2(n: int):
     en faisant varier le nombre d'élèves entre 1 et 366
     :return: la liste des moyennes du maximum d'élèves nés le même jour
     """
-    res = []
-    for i in range(1, 367):
-        maxPers = []
+    # nommons "set" le jeu des 366 répartitions obtenues
+    # en faisant varier le nombre d'élèves entre 1 et 366
+    n_set=[] #Tableau 2D des sets
+    res=[]
+    #Génération du n_set
+    for j in range(n):
+        #Génération d'un set
+        set = []
+        for i in range(1, 367):
+            set.append(maxanniv(anniversaire(i)[0])) #On ajoute le maximum d'élèves nés un jour
+        n_set.append(set)
+    #Moyenne des n_sets par colonnes
+    for i in range(366):
+        temp = 0
         for j in range(n):
-            maxPers.append(maxanniv((anniversaire(i)[0])))
-        res.append(moyenne(maxPers))
+            temp += n_set[j][i] #Somme de la colonne pour j entre 1 et n
+        res.append(round(temp/n,2)) #Ajoute la moyenne de chaque colonne à res
     return res
 
 
