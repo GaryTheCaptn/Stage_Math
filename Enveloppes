@@ -1,0 +1,44 @@
+import matplotlib.pyplot as plt
+from random import *
+from matplotlib.patches import Rectangle
+def jeu_enveloppe(n : int):
+    """
+
+    :param n: un entier correspondant au nombre de fois où on joue au jeu
+    :return: le nombre de victoires pour le joueur 1 (qui ne change pas d'enveloppe)
+    et le joueur 2 (qui change d'enveloppe)
+    """
+    enveloppes = [1,2]
+    res1=0
+    res2=0
+    for i in range(n):
+        tresor = choice(enveloppes)
+        choix_joueur1 = choice(enveloppes)
+        choix_joueur2 = choix_joueur1
+        temp=choix_joueur2
+        enveloppes.remove(choix_joueur2)
+        choix_joueur2 = choice(enveloppes) #le joueur 2 change d'enveloppe
+        enveloppes.append(temp)
+        if choix_joueur1 == tresor:
+            res1+=1
+        if choix_joueur2 == tresor:
+            res2+=1
+    return res1, res2
+
+def affichage_enveloppe(n : int):
+    """
+    :param n: un entier, le nombre de parties jouées
+    :return: affiche les résultats de n parties
+    """
+    res = jeu_enveloppe(n)
+    victoires=  [res[1],res[0]]
+    comportement = ["On change","On ne change pas"]
+    ax = plt.bar(comportement, victoires, color='red')
+    ax[1].set_facecolor('green')
+    plt.title(f"Répartition des victoires pour {n} parties.")
+    colors = ["red", "green"]
+    handles = [Rectangle((0, 0), 1, 1, color=c, ec="k") for c in colors]
+    labels = [f"{res[1]} victoires, soit " +str(round(res[1]/n,2)*100)+ " %",
+              f"{res[0]} victoires, soit " +str(round(res[0]/n,2)*100)+" %"]
+    plt.legend(handles, labels)
+    plt.show()
