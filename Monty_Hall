@@ -5,8 +5,8 @@ from matplotlib.patches import Rectangle
 
 def jeu3p(change:bool)-> bool:
     """
-    
-    :param change: un booléen qui indique si le joeur change ou non
+
+    :param change: un booléen qui indique si le joueur change ou non
     :return:  un booléen indiquant si le joueur a gagné ou non.
     """
     portes = [1, 2, 3]
@@ -18,34 +18,30 @@ def jeu3p(change:bool)-> bool:
         return choix_joueur == bonne_reponse
 
 
-def jeukp(change:bool, n:int, k:int)-> bool:
+def jeukp(n:int, k:int)-> (bool,bool):
     """
-    :param change: un booléen indiquant si le joueur change ou non de porte
     :param n: un entier indiquant le nombre de portes
-    :param k: un entier indiquant le nombre de portes que l'on ouvre
-    :return: un booléen indiquant si le joueur a gagné ou non
+    :param k: un entier indiquant le nombre de portes que le présentateur ouvre
+    :return: Le tuple indiquant si le joueur aurait gagné en (changeant, sanschanger)
     """
-    portes = []
-    for i in range(1, n + 1):
-        portes.append(i)
-    choix_joueur = choice(portes)
-    bonne_reponse = choice(portes)
-    if change:
-        # On souhaite fournir une liste dans laquelle le joueur pourra choisir
-        # aleatoirement sa porte
-        # Cette liste est "portes" de laquelle on a enlevé les portes ouvert
-        # par le presentateur, de sorte que
-        # choix_joueur et bonne_reponse soit toujours présentes.
-        if bonne_reponse == choix_joueur:
-            return False
-        else:
-            portes.remove(choix_joueur)
-            portes.remove(bonne_reponse)
-            portes = portes[k:]
-            portes.append(bonne_reponse)
-            return (choice(portes)) == bonne_reponse
+    #J1 change toujours de porte.
+    #J2 ne change jamais de porte
+    portes : list[int] = [i for i in range(1,n+1)]
+    bonne_reponse=choice(portes)
+    choix_1 = choice(portes)
+    if bonne_reponse == choix_1:
+        return (False,True) #(J1 perd et J2 gagne)
     else:
-        return bonne_reponse == choix_joueur
+            # On souhaite fournir une liste dans laquelle le joueur pourra choisir
+            # aleatoirement sa porte
+            # Cette liste est "portes" de laquelle on a enlevé les portes ouvertes
+            # par le presentateur, de sorte que bonne_reponse soit toujours présente.
+        portes.remove(choix_1)
+        portes.remove(bonne_reponse)
+        portes = portes[k:] # On enlève k portes parmi les portes restantes
+        portes.append(bonne_reponse)
+        return ((choice(portes)) == bonne_reponse, False) #J1 gagne peut-être et J2 perd
+
 
 
 def joueN(n:int, change:bool)-> int:
@@ -61,19 +57,20 @@ def joueN(n:int, change:bool)-> int:
     return nb_victoires
 
 
-def joueN2(essai: int, n:int, k:int):
+def joueN2(essai: int, n:int, k:int) -> (int,int):
     """
-    :param essai: le nombre d'essais
+    :param essai: le nombre de parties
     :param n: le nombre de portes
-    :param k: le nombre de portes que l'on ouvre
-    :return: le nombre de victoire pour les 2 stratégies possibles
+    :param k: le nombre de portes que le présentateur ouvre
+    :return: le nombre de victoires pour les 2 stratégies possibles
     """
     nb_victoires1 = 0
     nb_victoires2 = 0
     for i in range(essai):
-        if jeukp(True, n, k):
+        donnees = jeukp(n,k)
+        if donnees[0]:
             nb_victoires1 += 1
-        if jeukp(False, n, k):
+        elif donnees[1]:
             nb_victoires2 += 1
     return nb_victoires1, nb_victoires2
 
@@ -81,8 +78,10 @@ def affichage(n:int):
     """
     :param n: le nombre de parties jouées
     """
-    tchou = joueN(n, True)
-    trump = joueN(n, False)
+
+    victoires_change= joueN(n, True)
+    tchou = victoires_change
+    trump = n-victoires_change
     l1 = [trump, tchou]
     l2 = ["On ne change pas", "On change"]
     ax = plt.bar(l2, l1, color='red')
@@ -94,7 +93,6 @@ def affichage(n:int):
               str(tchou) + " victoires, soit " + str(round((tchou / n) * 100, 2)) + "%"]
     plt.legend(handles, labels)
     plt.show()
-
 
 def affichage2(essai:int, n:int, k:int):
     """
