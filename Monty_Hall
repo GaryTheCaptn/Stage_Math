@@ -1,0 +1,119 @@
+from random import *
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+
+def jeu3p(change:bool)-> bool:
+    """
+    
+    :param change: un booléen qui indique si le joeur change ou non
+    :return:  un booléen indiquant si le joueur a gagné ou non.
+    """
+    portes = [1, 2, 3]
+    choix_joueur = choice(portes)
+    bonne_reponse = choice(portes)
+    if change:
+        return choix_joueur != bonne_reponse
+    else:
+        return choix_joueur == bonne_reponse
+
+
+def jeukp(change:bool, n:int, k:int)-> bool:
+    """
+    :param change: un booléen indiquant si le joueur change ou non de porte
+    :param n: un entier indiquant le nombre de portes
+    :param k: un entier indiquant le nombre de portes que l'on ouvre
+    :return: un booléen indiquant si le joueur a gagné ou non
+    """
+    portes = []
+    for i in range(1, n + 1):
+        portes.append(i)
+    choix_joueur = choice(portes)
+    bonne_reponse = choice(portes)
+    if change:
+        # On souhaite fournir une liste dans laquelle le joueur pourra choisir
+        # aleatoirement sa porte
+        # Cette liste est "portes" de laquelle on a enlevé les portes ouvert
+        # par le presentateur, de sorte que
+        # choix_joueur et bonne_reponse soit toujours présentes.
+        if bonne_reponse == choix_joueur:
+            return False
+        else:
+            portes.remove(choix_joueur)
+            portes.remove(bonne_reponse)
+            portes = portes[k:]
+            portes.append(bonne_reponse)
+            return (choice(portes)) == bonne_reponse
+    else:
+        return bonne_reponse == choix_joueur
+
+
+def joueN(n:int, change:bool)-> int:
+    """
+    :param n: le nombre de parties
+    :param change: si le joueur change ou non de porte
+    :return: le nombre de victoires pour n essais
+    """
+    nb_victoires = 0
+    for i in range(n):
+        if jeu3p(change):
+            nb_victoires += 1
+    return nb_victoires
+
+
+def joueN2(essai: int, n:int, k:int):
+    """
+    :param essai: le nombre d'essais
+    :param n: le nombre de portes
+    :param k: le nombre de portes que l'on ouvre
+    :return: le nombre de victoire pour les 2 stratégies possibles
+    """
+    nb_victoires1 = 0
+    nb_victoires2 = 0
+    for i in range(essai):
+        if jeukp(True, n, k):
+            nb_victoires1 += 1
+        if jeukp(False, n, k):
+            nb_victoires2 += 1
+    return nb_victoires1, nb_victoires2
+
+def affichage(n:int):
+    """
+    :param n: le nombre de parties jouées
+    """
+    tchou = joueN(n, True)
+    trump = joueN(n, False)
+    l1 = [trump, tchou]
+    l2 = ["On ne change pas", "On change"]
+    ax = plt.bar(l2, l1, color='red')
+    ax[1].set_facecolor('green')
+    plt.title("Répartition des victoires pour " + str(n) + " parties")
+    colors = ["red", "green"]
+    handles = [Rectangle((0, 0), 1, 1, color=c, ec="k") for c in colors]
+    labels = [str(trump) + " victoires, soit " + str(round((trump / n) * 100, 2)) + "%",
+              str(tchou) + " victoires, soit " + str(round((tchou / n) * 100, 2)) + "%"]
+    plt.legend(handles, labels)
+    plt.show()
+
+
+def affichage2(essai:int, n:int, k:int):
+    """
+    :param essai: le nombre d'essais
+    :param n: le nombre de portes
+    :param k: le nombre de portes que l'on ouvre
+    """
+    res = joueN2(essai, n, k)
+    tchou = res[0]
+    trump = res[1]
+    l1 = [trump, tchou]
+    l2 = ["On ne change pas", "On change"]
+    ax = plt.bar(l2, l1, color='red')
+    ax[1].set_facecolor('green')
+    plt.title("Répartition des victoires pour " + str(essai) + " parties à " + str(n) + " portes dont " + str(
+        k) + " ouvertes.")
+    colors = ["red", "green"]
+    handles = [Rectangle((0, 0), 1, 1, color=c, ec="k") for c in colors]
+    labels = [str(trump) + " victoires, soit " + str(round((trump / essai) * 100, 2)) + "%",
+              str(tchou) + " victoires, soit " + str(round((tchou / essai) * 100, 2)) + "%"]
+    plt.legend(handles, labels)
+    plt.show()
