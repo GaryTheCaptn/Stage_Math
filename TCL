@@ -1,1 +1,93 @@
-coucou
+import math
+
+import numpy as np
+from matplotlib import pyplot as plt
+from numpy import random
+
+from random import randint
+
+from Anniversaire import retire, quicksort, maxanniv
+
+
+def lancer() -> bool: return (random.randint(0, 2) == 1)
+
+
+def parties(n: int) -> int:
+    res = 0
+    for i in range(n):
+        if lancer():
+            res += 1
+    return res
+
+
+def stats(n: int):
+    res = []
+    for i in range(1, n + 1):
+        res.append(round(parties(i) / i, 2))
+    return res
+
+def stats2(sample: int, n:int):
+    res=[]
+    for i in range(sample):
+        res.append(parties(n))
+    return res
+
+def frequencesTh(n: int):
+    res=[]
+    for i in range(n+1):
+        calc=math.comb(n,i)*(0.5**i)*(0.5**(n-i))
+        res.append(calc)
+    return res
+
+def nbOc(l : list[int], e : int):
+    res=0
+    for i in range(l):
+        if l[i]==e:
+            res+=1
+    return res
+
+def counter(l: list[int]) -> (list[int], int):
+    """
+    :param l: une liste d'entiers
+    :return: le tuple compose de la liste l triee et du nombre
+    total d'éléments qui apparaissent plus de deux fois.
+    """
+    res : list[int,int] = []
+    count : int = 0
+    while (len(l) > 0):
+        temp = retire(l, l[0])
+        res = res + [temp]
+
+    for i in range(len(res)):
+        if (res[i][1] > 1):
+            count = count + res[i][1]
+    return quicksort(res), count
+
+def frequencesExp(n: int, k :int):
+    valeurs=[]
+    for i in range(n):
+        valeurs.append(parties(k))
+    return counter(valeurs)
+
+def affiche(n,k):
+    dat=frequencesExp(n,k)
+    donnees=dat[0]
+    count=dat[1]
+    x=[]
+    y=[]
+    for i in range(len(donnees)):
+        y.append(round(donnees[i][1]/count,2))
+        x.append(donnees[i][0])
+    y2=frequencesTh(k)
+    print(y2)
+    # plot
+    print(x,y)
+    fig, ax = plt.subplots()
+    ax.bar(x, y, width=1, edgecolor="white", linewidth=0.7)
+    plt.bar(x,y2, 0.4)
+    plt.xlabel("Nombre de piles")
+    plt.ylabel("Nombre d'occurrences ")
+    plt.title(f"Graphe représentatif du nombre d'occurrences en fonction du nombre de piles")
+    plt.show()
+
+affiche(10000,10)
