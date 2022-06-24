@@ -6,6 +6,18 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
+def max(l: list[int]):
+    """
+    :param l: une liste d'entiers
+    :return: le plus grand élément de l
+    """
+    res: int = l[0]
+    for i in range(len(l)):
+        if l[i] > res:
+            res = l[i]
+    return res
+
+
 def quicksort(l: list[int]) -> list[int]:
     """
     :param l: une liste d'entiers non triée
@@ -33,8 +45,8 @@ def counter(l: list[int]) -> (list[int], int):
     :return: le tuple compose de la liste l triee et du nombre
     total d'éléments qui apparaissent plus de deux fois.
     """
-    res : list[int,int] = []
-    count : int = 0
+    res: list[int, int] = []
+    count: int = 0
     while (len(l) > 0):
         temp = retire(l, l[0])
         res = res + [temp]
@@ -58,7 +70,7 @@ def retire(l: list[int], e: int) -> (int, int):
             count += 1
     for i in range(count):
         l.remove(e)
-    return (e,count)
+    return (e, count)
 
 
 def anniversaire(n: int) -> (list[int], int):
@@ -71,7 +83,8 @@ def anniversaire(n: int) -> (list[int], int):
         personnes.append(randint(1, 365))
     return counter(personnes)
 
-def maxanniv(l: list[(int, int)])-> int:
+
+def maxanniv(l: list[(int, int)]) -> int:
     """
     :param l: une répartition d'anniversaires en (jour, nombre d'anniversaires en ce jour)
     :return: le plus grand nombre d'anniversaires le même jour de la liste
@@ -81,29 +94,6 @@ def maxanniv(l: list[(int, int)])-> int:
         if (l[i][1] > max):
             max = l[i][1]
     return max
-
-
-def affichageAnniv(n: int):
-    """ Affiche un graphique représentatif de la repartition des dates de
-    naissances des n eleves sur les 365 jours de l'annee.
-    :param n: le nombre d'élèves dans une classe
-    """
-    donnees: list[(int, int)] = anniversaire(n)[0]  # la liste des (jours, nbAnniv)
-    max: int = maxanniv(donnees)  # Le plus grand nombre d'anniversaires en un jour
-    # make data:
-    y: list[(int, int)] = []
-    x: list[(int, int)] = []
-    for k in range(len(donnees)):  # On récupère les premières et secondes composantes
-        x = x + [donnees[k][0]]  # des (jours,nbAnniv)
-        y = y + [donnees[k][1]]
-    # plot
-    fig, ax = plt.subplots()
-    ax.bar(x, y, width=1, edgecolor="white", linewidth=0.7)
-    ax.set(yticks=np.arange(0, max + 1))
-    plt.xlabel("Nombre d'élèves nés le même jour")
-    plt.ylabel("Jours de l'année")
-    plt.title(f"Graphe représentatif d'une répartition de {n} élèves sur 365 jours.")
-    plt.show()
 
 
 def moyenne(l: list[(int)]) -> float:
@@ -117,28 +107,208 @@ def moyenne(l: list[(int)]) -> float:
     return round((res / len(l)), 2)
 
 
+
+
+def nb_oc(e: int, l: list[int]):
+    """
+    :param e: un entier
+    :param l: une liste d'entiers
+    :return: le nombre d'occurences de e dans l
+    """
+    res: int = 0
+    for i in range(len(l)):
+        if l[i] == e:
+            res += 1
+    return res
+
+
+def gaussAnniv(n: int):
+    """
+    :param n: le nombre d'élèves
+    :return: la liste du nombre d'élèves partageant un anniversaire par ordre.
+    """
+    calendrier: list[int] = [k for k in range(1, 365 + 1)]
+    nb_eleves: list[int] = [0] * 365
+    nb_par_case: list[int] = []
+    # Remplir le calendrier
+    for i in range(n):
+        eleve: int = randint(1, 365)
+        for j in range(len(calendrier)):
+            if calendrier[j] == eleve:
+                nb_eleves[j] += 1
+    # Compter les cases
+    for i in range(max(nb_eleves) + 1):
+        nb_par_case.append(nb_oc(i, nb_eleves))
+    return nb_par_case
+
+
+def jairaison(l: list[int]):
+    res = 0
+    for i in range(len(l)):
+        if l[i] != res:
+            return i
+    return i
+
+
+def affichegaussAnniv(n: int):
+    """
+  Affiche la distribution de n élèves, selon ceux qui partagent un anniversaire
+  @param n : un entier, le nombre d'élèves
+  """
+    temp = gaussAnniv(n)
+    inf = jairaison(temp)
+    sup = len(temp)
+    y = temp
+    x = [i for i in range(len(temp))]
+    fig, ax = plt.subplots()
+    ax.bar(x, y, width=1, edgecolor="white", linewidth=0.7)
+    ax.set(xticks=np.arange(inf, sup), xlim=(inf - 2, sup + 1))
+    plt.title(f"Distribution pour {n} élèves du nombre d'élèves partageant un anniversaire.")
+    plt.ylabel("Nombre d'élèves")
+    plt.xlabel("Nombre de personnes partageant le même anniversaire")
+    plt.show()
+
+
+# test=gaussAnniv(8000)
+# print(test)
+
+
+def indiceDuMax(l: list[int]) -> int:
+    """
+    :param l: une liste d'entiers
+    :return: l'indice du plus grand élément de l
+    """
+    indice = 0
+    res: int = l[0]
+    for i in range(len(l)):
+        if l[i] > res:
+            res = l[i]
+            indice = i
+    return indice
+
+
+def affichegaussAnniv2(n: int):
+    """
+  Affiche la distribution de n élèves, selon ceux qui partagent un anniversaire
+  @param n : un entier, le nombre d'élèves
+  """
+    temp = gaussAnniv(n)
+    inf = jairaison(temp)
+    sup = len(temp)
+    y = temp
+    x = [i for i in range(len(temp))]
+    fig, ax = plt.subplots()
+    ax.bar(x, y, width=1, edgecolor="white", linewidth=0.7)
+    ax.set(xticks=np.arange(inf, sup), xlim=(inf - 2, sup + 1))
+    plt.title(f"Distribution pour {n} élèves du nombre d'élèves partageant un anniversaire.")
+    plt.ylabel("Nombre d'élèves")
+    plt.xlabel("Nombre de personnes partageant le même anniversaire")
+    mean = indiceDuMax(temp)
+    std = 2
+    a = np.linspace(inf, sup, 100)
+    b = scipy.stats.norm.pdf(a, mean, std) * 200
+    plt.plot(a, b, color='coral')
+    plt.xlim(inf, sup)
+    plt.ylim(0, max(temp))
+    plt.title('How to plot a normal distribution in python with matplotlib', fontsize=10)
+    plt.xlabel('x')
+    plt.ylabel('Normal Distribution')
+    plt.show()
+
+
+def calendrier(n: int):
+    """
+    :param n: le nombre d'élèves
+    :return: une liste de 365 éléments où chaque indice correspond à un jour
+    et chaque valeur au nombre d'élèves nés ce jour
+    """
+    nbr_naissances = [0 for i in range(365)]
+    for i in range(n):
+        jour = randint(0, 364)
+        nbr_naissances[jour] += 1
+    return nbr_naissances
+
+def Req2(l : list[int]):
+    """
+    :param l: une liste d'entiers
+    :return: la somme de tous les entiers supérieurs à 2
+    """
+    res : int =0
+    for e in l:
+        if (e>=2):
+            res+=e
+    return res
+
+
+#Faire la somme de toutes les valeurs >=2
+#Trouver le maximum du tableau ?
+def correction2(l: list[int]):
+    res = dict()
+    for i in range(len(l)):
+        if (l[i] in res):
+            res[l[i]] += 1
+        else:
+            res[l[i]] = 1
+    return res
+
+
+def correction3(d: dict()):
+    res = []
+    for key in d:
+        res.append((key, d[key]))
+    return res
+
+
+"""l = [randint(1,365) for i in range(50)]
+d = correction2(l)
+l2 = correction3(d)"""
+"""print(l)
+print(d)
+print(l2)
+print(quicksort(l2))"""
+
+
+def affichageAnniv(n: int):
+    """ Affiche un graphique représentatif de la repartition des dates de
+    naissances des n eleves sur les 365 jours de l'annee.
+    :param n: le nombre d'élèves dans une classe
+    """
+    x: list[int] = np.arange(0,365)  # la liste des (jours, nbAnniv)
+    y = calendrier(n)
+    maximum: int = max(y)  # Le plus grand nombre d'anniversaires en un jour
+    # plot
+    fig, ax = plt.subplots()
+    ax.bar(x, y, width=1, edgecolor="white", linewidth=0.7)
+    ax.set(yticks=np.arange(0, maximum + 1))
+    plt.ylabel("Nombre d'élèves nés le même jour")
+    plt.xlabel("Jours de l'année")
+    plt.title(f"Graphe représentatif d'une répartition de {n} élèves sur 365 jours.")
+    plt.show()
+
+
 def genMoyennes(n: int) -> list[float]:  # nommons "set" le jeu des 366 répartitions obtenues
     # en faisant varier le nombre d'élèves entre 1 et 366
     """
     :param n: le nombre de sets différents générés
     :return: la liste de la moyenne du nombre maximum de personnes nées un jour
     """
-    n_set=[] #Tableau 2D des sets
-    res=[]
-    #Génération du n_set
+    n_set = []  # Tableau 2D des sets
+    res = []
+    # Génération du n_set
     for j in range(n):
-        #Génération d'un set
+        # Génération d'un set
         set = []
         for i in range(1, 367):
-            set.append(anniversaire(i)[1]) #On ajoute le nombre total d'élèves nés le même jour
+            set.append(Req2(calendrier(i))) # On ajoute le nombre total d'élèves nés le même jour
         n_set.append(set)
-    #Moyenne des n_sets par colonnes
+    # Moyenne des n_sets par colonnes
     for i in range(366):
         temp = 0
         for j in range(n):
-            temp += n_set[j][i] #Somme de la colonne pour j entre 1 et n
-        res.append(round(temp/n,2)) #Ajoute la moyenne de chaque colonne à res
+            temp += n_set[j][i]  # Somme de la colonne pour j entre 1 et n
+        res.append(round(temp / n, 2))  # Ajoute la moyenne de chaque colonne à res
     return res
+
 
 def afficheAnniversaire2(n: int):
     """
@@ -169,21 +339,21 @@ def genMoyennes2(n: int) -> list[int]:
     """
     # nommons "set" le jeu des 366 répartitions obtenues
     # en faisant varier le nombre d'élèves entre 1 et 366
-    n_set=[] #Tableau 2D des sets
-    res=[]
-    #Génération du n_set
+    n_set = []  # Tableau 2D des sets
+    res = []
+    # Génération du n_set
     for j in range(n):
-        #Génération d'un set
+        # Génération d'un set
         set = []
         for i in range(1, 367):
-            set.append(maxanniv(anniversaire(i)[0])) #On ajoute le maximum d'élèves nés un jour
+            set.append(max(calendrier(i)))  # On ajoute le maximum d'élèves nés un jour
         n_set.append(set)
-    #Moyenne des n_sets par colonnes
+    # Moyenne des n_sets par colonnes
     for i in range(366):
         temp = 0
         for j in range(n):
-            temp += n_set[j][i] #Somme de la colonne pour j entre 1 et n
-        res.append(round(temp/n,2)) #Ajoute la moyenne de chaque colonne à res
+            temp += n_set[j][i]  # Somme de la colonne pour j entre 1 et n
+        res.append(round(temp / n, 2))  # Ajoute la moyenne de chaque colonne à res
     return res
 
 
@@ -200,33 +370,3 @@ def afficheAnniversaire3(n: int):
     plt.xlabel("Nombre d'élèves")
     plt.ylabel("Maximum d'élèves nés le même jour")
     plt.show()
-
-
-def max(l: list[int]):
-    """
-    :param l: une liste d'entiers
-    :return: le plus grand élément de l
-    """
-    res: int = l[0]
-    for i in range(len(l)):
-        if l[i] > res:
-            res = l[i]
-    return res
-
-
-def nb_oc(e: int, l: list[int]):
-    """
-    :param e: un entier
-    :param l: une liste d'entiers
-    :return: le nombre d'occurences de e dans l
-    """
-    res: int = 0
-    for i in range(len(l)):
-        if l[i] == e:
-            res += 1
-    return res
-
-
-affichageAnniv(50)
-afficheAnniversaire2(1000)
-afficheAnniversaire3(1000)
