@@ -6,7 +6,7 @@ from numpy import random
 
 from random import randint
 
-from Anniversaire import retire, quicksort, maxanniv
+from Anniversaire import retire, quicksort, maxanniv, correction2, correction3
 
 
 def lancer() -> bool: return (random.randint(0, 2) == 1)
@@ -19,17 +19,17 @@ def parties(n: int) -> int:
             res += 1
     return res
 
-
-def stats(n: int):
-    res = []
+#On fait n parties à k lancers, leur moyenne empirique et on ajoute ça à stats
+def moy_emp(n: int, k :int):
+    moy_emp = 0
     for i in range(1, n + 1):
-        res.append(round(parties(i) / i, 2))
-    return res
+        moy_emp+=parties(k)
+    return moy_emp/n
 
-def stats2(sample: int, n:int):
+def stats(echantillon : int, n: int, k: int):
     res=[]
-    for i in range(sample):
-        res.append(parties(n))
+    for i in range(echantillon):
+        res.append(moy_emp(n,k))
     return res
 
 def frequencesTh(n: int):
@@ -39,55 +39,66 @@ def frequencesTh(n: int):
         res.append(calc)
     return res
 
-def nbOc(l : list[int], e : int):
-    res=0
-    for i in range(l):
-        if l[i]==e:
-            res+=1
-    return res
 
-def counter(l: list[int]) -> (list[int], int):
-    """
-    :param l: une liste d'entiers
-    :return: le tuple compose de la liste l triee et du nombre
-    total d'éléments qui apparaissent plus de deux fois.
-    """
-    res : list[int,int] = []
-    count : int = 0
-    while (len(l) > 0):
-        temp = retire(l, l[0])
-        res = res + [temp]
-
-    for i in range(len(res)):
-        if (res[i][1] > 1):
-            count = count + res[i][1]
-    return quicksort(res), count
-
-def frequencesExp(n: int, k :int):
+def espVar(n : int):
+    e=0
+    e2=0
     valeurs=[]
-    for i in range(n):
-        valeurs.append(parties(k))
-    return counter(valeurs)
+    probas=[]
+    for i in range(n+1):
+        valeurs.append(i)
+        probas.append(math.comb(n,i)*(0.5**i)*(0.5**(n-i)))
+        e+=valeurs[i]*probas[i]
+        e2+=(valeurs[i]**2)*probas[i]
+    V=e2-e
+    return e,math.sqrt(V)
 
-def affiche(n,k):
-    dat=frequencesExp(n,k)
-    donnees=dat[0]
-    count=dat[1]
+def affiche(echantillon,n,k):
+    dat=correction3(correction2(stats(echantillon, n,k)))
     x=[]
     y=[]
-    for i in range(len(donnees)):
-        y.append(round(donnees[i][1]/count,2))
-        x.append(donnees[i][0])
-    y2=frequencesTh(k)
-    print(y2)
+    for i in range(len(dat)):
+        x.append(dat[i][0])
+        y.append(dat[i][1])
+    """y2=frequencesTh(k)"""
     # plot
-    print(x,y)
     fig, ax = plt.subplots()
-    ax.bar(x, y, width=1, edgecolor="white", linewidth=0.7)
-    plt.bar(x,y2, 0.4)
+    ax.stem(x, y)
+    """ plt.bar(x,y2, 0.4, label = 'Répartition théorique')"""
     plt.xlabel("Nombre de piles")
     plt.ylabel("Nombre d'occurrences ")
-    plt.title(f"Graphe représentatif du nombre d'occurrences en fonction du nombre de piles")
+    plt.legend()
+    plt.title(f"Nombre de piles pour {n} parties à {k} lancers, sur un échantillon de {echantillon}.")
     plt.show()
 
-affiche(10000,10)
+def GAY(l : list[(int,int)]):
+    res=l[0][1]
+    for i in range(len(l)):
+        if l[i][1]>res:
+            res=l[i][1]
+    return res
+def affiche2(echantillon,n,k):
+    dat=correction3(correction2(stats(echantillon, n,k)))
+    dat2=espVar(k)
+    E : float =dat2[0]
+    sigma : float = dat2[1]
+    max=GAY(dat)
+    x=[]
+    y=[]
+    for i in range(len(dat)):
+        temp : float = dat[i][0]
+        x.append((temp-E)*(math.sqrt(n) / sigma))
+        y.append(dat[i][1]/max)
+    """y2=frequencesTh(k)"""
+    # plot
+    fig, ax = plt.subplots()
+    ax.stem(x, y)
+    """ plt.bar(x,y2, 0.4, label = 'Répartition théorique')"""
+    plt.xlabel("Nombre de piles")
+    plt.ylabel("Nombre d'occurrences ")
+    plt.legend()
+    plt.title(f"Nombre de piles pour {n} parties à {k} lancers, sur un échantillon de {echantillon}.")
+    plt.show()
+
+affiche(500,10,100)
+
