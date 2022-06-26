@@ -1,10 +1,13 @@
 import math
+import statistics
 
 import numpy as np
 from matplotlib import pyplot as plt
 from numpy import random
 
 from random import randint
+
+from scipy.stats import norm
 
 from Anniversaire import retire, quicksort, maxanniv, correction2, correction3
 
@@ -71,7 +74,7 @@ def affiche(echantillon,n,k):
     plt.title(f"Nombre de piles pour {n} parties à {k} lancers, sur un échantillon de {echantillon}.")
     plt.show()
 
-def GAY(l : list[(int,int)]):
+def max2(l : list[(int,int)]):
     res=l[0][1]
     for i in range(len(l)):
         if l[i][1]>res:
@@ -82,7 +85,7 @@ def affiche2(echantillon,n,k):
     dat2=espVar(k)
     E : float =dat2[0]
     sigma : float = dat2[1]
-    max=GAY(dat)
+    max=max2(dat)
     x=[]
     y=[]
     for i in range(len(dat)):
@@ -99,6 +102,3 @@ def affiche2(echantillon,n,k):
     plt.legend()
     plt.title(f"Nombre de piles pour {n} parties à {k} lancers, sur un échantillon de {echantillon}.")
     plt.show()
-
-affiche(500,10,100)
-
