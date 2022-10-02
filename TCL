@@ -100,5 +100,5 @@ def affiche2(echantillon,n,k):
     plt.xlabel("Nombre de piles")
     plt.ylabel("Nombre d'occurrences ")
     plt.legend()
-    plt.title(f"Nombre de piles pour {n} parties à {k} lancers, sur un échantillon de {echantillon}.")
+    plt.title(f"Variable centrée réduite associée à la variable expérimentale de paramètres ({echantillon},{n},{k})")
     plt.show()
